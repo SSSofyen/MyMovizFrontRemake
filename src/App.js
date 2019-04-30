@@ -27,10 +27,31 @@ class App extends Component {
   constructor() {
     super();
     this.toggle = this.toggle.bind(this);
+    this.handleClickLikeOn = this.handleClickLikeOn.bind(this);
+    this.handleClickLikeOff = this.handleClickLikeOff.bind(this);
+    // this.handleClick=this.handleClick.bind(this)
+
     this.state = {
-      popoverOpen: false
+      popoverOpen: false,
+      viewOnlyLike :false
     };
   }
+
+handleClick() {
+console.log("click détecté");
+}
+
+handleClickLikeOn() {
+  this.setState({
+    viewOnlyLike : true
+  })
+}
+
+handleClickLikeOff() {
+  this.setState({
+    viewOnlyLike : false
+  })
+}
 
   toggle() {
     this.setState({
@@ -42,7 +63,8 @@ class App extends Component {
 
     var moviesNameList = [
       "a",
-      "b"
+      "b",
+      "c"
     ]
 
     var moviesLast ="aucun film sélectionné"
@@ -59,11 +81,6 @@ class App extends Component {
     if (moviesNameList.length > 0) {
       moviesLast = moviesLast + ' ...'
     }
-
-console.log(moviesLast)
-    var moviesCount = moviesNameList.length
-    console.log(moviesCount)
-
 
     var movieData = [
       {
@@ -83,9 +100,10 @@ console.log(moviesLast)
       }
     ]
 
+    var ctx = this
     var movieList = movieData.map(
       function(movie){
-        return(<Movie movieName={movie.name} moviedesc={movie.desc} movieImg={movie.img}/>)
+        return(<Movie movieName={movie.name} moviedesc={movie.desc} movieImg={movie.img} displayOnlyLike={ctx.state.viewOnlyLike} handleClickParent={ctx.handleClick}/>)
       }
     )
 
@@ -110,12 +128,12 @@ console.log(moviesLast)
           <NavItem>
             <NavLink href="#" style={{
                 color: '#FFFFFF'
-              }}>Last Releases</NavLink>
+              }}onClick={ctx.handleClickLikeOff}>Last Releases</NavLink>
           </NavItem>
           <NavItem>
             <NavLink href="#" style={{
                 color: '#FFFFFF'
-              }}>MyMoviz</NavLink>
+              }} onClick={ctx.handleClickLikeOn}>MyMoviz</NavLink>
           </NavItem>
 
           <Button id="Popover1" onClick={this.toggle}>
@@ -139,13 +157,43 @@ console.log(moviesLast)
 }
 
 class Movie extends Component {
+
+constructor() {
+  super()
+  this.handleClick=this.handleClick.bind(this)
+  this.state= {
+    like:false
+  }
+}
+
+handleClick() {
+this.setState({
+  like:!this.state.like
+})
+this.props.handleClickParent()
+}
+
 render () {
+
+  var colorHeart
+  var  isLike = false
+  if (this.state.like) {
+    colorHeart="#fc6861"
+  }
+
+  var isDisplay;
+  if (this.props.displayOnlyLike && this.state.like == false) {
+    isDisplay ={
+      display:"none"
+    }
+  }
+
   return (
-    <Col>
+    <Col style = {isDisplay}>
       <Card style={{marginBottom:15}}>
         <CardImg top width="100%" src="https://placeholdit.imgix.net/~text?txtsize=33&txt=318%C3%97180&w=318&h=180" alt="Card image cap" />
-        <CardBody>
-          <FontAwesomeIcon style={{position:"left", left:"90%"}} icon={faHeart}/>
+        <CardBody style={{height:250}}>
+          <FontAwesomeIcon onClick={this.handleClick} style={{position:"left", left:"90%", color:colorHeart}} icon={faHeart}/>
           <CardTitle>{this.props.movieName}</CardTitle>
           <CardText>{this.props.movieDesc}</CardText>
         </CardBody>
